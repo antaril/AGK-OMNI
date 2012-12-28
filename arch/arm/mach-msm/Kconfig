@@ -1683,10 +1683,34 @@ config MSM_CPU_FREQ_MIN
 
 endif # CPU_FREQ_MSM
 
+<<<<<<< HEAD
 config MSM_CPU_AVS
 	bool "Enable software controlled Adaptive Voltage Scaling (AVS)"
 	depends on (ARCH_MSM_SCORPION && QSD_SVS)
 	depends on ARCH_QSD8X50
+=======
+config INTELLI_PLUG
+	bool "Enable intelli-plug cpu hotplug driver"
+	default n
+	help
+	  Generic Intelli-plug cpu hotplug driver for ARM SOCs
+
+config LOW_CPUCLOCKS
+	bool "Enable ultra low CPU clocks"
+	default n
+	help
+	  Ultra low cpu frequencies enabled for CPU and L2 Cache
+
+config CPU_OVERCLOCK
+	bool "Enable CPU Overclocking option"
+	default n
+	help
+	  Krait overclocking up to 1.84 GHz
+
+config OC_ULTIMATE
+	bool "allow 1.944 GHZ max OC option"
+	depends on CPU_OVERCLOCK
+>>>>>>> d9721cc... intelli_plug by faux123 (squashed commits)
 	default n
 	select MSM_AVS_HW
 	help
