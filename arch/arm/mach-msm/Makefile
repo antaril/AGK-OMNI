@@ -473,3 +473,4 @@ obj-$(CONFIG_FORCE_FAST_CHARGE) += fastchg.o
 
 #PWR2_ADD, @CPU Sniffer: CPU usage statistics.
 obj-y += htc_cpu_usage_stats.o
+obj-y += htc_lpm.o
