@@ -163,6 +163,7 @@ void pm8xxx_led_current_set_for_key(int brightness_key)
 
 	}
 }
+
 struct led_classdev *led_cdev_buttons = 0;
 static int buttons_led_is_blinking = 0;
 static int buttons_led_is_on = 0;
@@ -431,6 +432,7 @@ static void led_blink_do_work(struct work_struct *work)
 	}
 
 }
+
 static ssize_t pm8xxx_blink_buttons_show(struct device *dev,
 					struct device_attribute *attr,
 					char *buf)
@@ -452,6 +454,7 @@ static ssize_t pm8xxx_blink_buttons_store(struct device *dev,
 }
 
 static DEVICE_ATTR(blink_buttons, 0644, pm8xxx_blink_buttons_show, pm8xxx_blink_buttons_store);
+
 
 static ssize_t pm8xxx_led_blink_show(struct device *dev,
 					struct device_attribute *attr,
@@ -920,6 +923,7 @@ static int __devinit pm8xxx_led_probe(struct platform_device *pdev)
 			LED_ERR("unable to register led %d,ret=%d\n", led_dat->id, ret);
 			goto err_register_led_cdev;
 		}
+
 		// blink buttons
 		if (led_dat->id == PM8XXX_ID_LED_0) {
 			// storing buttons light dev for blinking
