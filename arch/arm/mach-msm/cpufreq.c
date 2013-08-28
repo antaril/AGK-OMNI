@@ -3,7 +3,7 @@
  * MSM architecture cpufreq driver
  *
  * Copyright (C) 2007 Google, Inc.
- * Copyright (c) 2007-2013, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2007-2012, Code Aurora Forum. All rights reserved.
  * Author: Mike A. Chan <mikechan@google.com>
  *
  * This software is licensed under the terms of the GNU General Public
@@ -134,6 +134,30 @@ static int set_cpu_freq(struct cpufreq_policy *policy, unsigned int new_freq)
 		sched_setscheduler_nocheck(current, saved_sched_policy, &param);
 	}
 	return ret;
+}
+
+static int __cpuinit msm_cpufreq_cpu_callback(struct notifier_block *nfb,
+					unsigned long action, void *hcpu)
+{
+	unsigned int cpu = (unsigned long)hcpu;
+
+	switch (action) {
+	case CPU_ONLINE:
+	case CPU_ONLINE_FROZEN:
+		per_cpu(cpufreq_suspend, cpu).device_suspended = 0;
+		break;
+	case CPU_DOWN_PREPARE:
+	case CPU_DOWN_PREPARE_FROZEN:
+		mutex_lock(&per_cpu(cpufreq_suspend, cpu).suspend_mutex);
+		per_cpu(cpufreq_suspend, cpu).device_suspended = 1;
+		mutex_unlock(&per_cpu(cpufreq_suspend, cpu).suspend_mutex);
+		break;
+	case CPU_DOWN_FAILED:
+	case CPU_DOWN_FAILED_FROZEN:
+		per_cpu(cpufreq_suspend, cpu).device_suspended = 0;
+		break;
+	}
+	return NOTIFY_OK;
 }
 
 static void set_cpu_work(struct work_struct *work)
@@ -287,7 +311,6 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 {
 	int cur_freq;
 	int index;
-	int ret = 0;
 	struct cpufreq_frequency_table *table;
 	struct cpufreq_work_struct *cpu_work = NULL;
 
@@ -299,13 +322,13 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 
 	if (cpufreq_frequency_table_cpuinfo(policy, table)) {
 #ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
-		policy->cpuinfo.min_freq = CONFIG_MSM_CPU_FREQ_MIN;
-		policy->cpuinfo.max_freq = CONFIG_MSM_CPU_FREQ_MAX;
+		policy->min = 84000;
+   		policy->max = 1990000;
 #endif
 	}
 #ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
-	policy->min = CONFIG_MSM_CPU_FREQ_MIN;
-	policy->max = CONFIG_MSM_CPU_FREQ_MAX;
+        policy->cpuinfo.min_freq = 84000;
+        policy->cpuinfo.max_freq = 1990000;
 #endif
 
 #ifdef CONFIG_ARCH_APQ8064
@@ -324,16 +347,19 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 				policy->cpu, cur_freq);
 		return -EINVAL;
 	}
-	/*
-	 * Call set_cpu_freq unconditionally so that when cpu is set to
-	 * online, frequency limit will always be updated.
-	 */
-	ret = set_cpu_freq(policy, table[index].frequency);
-	if (ret)
-		return ret;
-	pr_debug("cpufreq: cpu%d init at %d switching to %d\n",
-			policy->cpu, cur_freq, table[index].frequency);
-	policy->cur = table[index].frequency;
+
+	if (cur_freq != table[index].frequency) {
+		int ret = 0;
+		ret = acpuclk_set_rate(policy->cpu, table[index].frequency,
+				SETRATE_CPUFREQ);
+		if (ret)
+			return ret;
+		pr_info("cpufreq: cpu%d init at %d switching to %d\n",
+				policy->cpu, cur_freq, table[index].frequency);
+		cur_freq = table[index].frequency;
+	}
+
+	policy->cur = cur_freq;
 
 	policy->cpuinfo.transition_latency =
 		acpuclk_get_switch_time() * NSEC_PER_USEC;
@@ -345,30 +371,7 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 	return 0;
 }
 
-static int __cpuinit msm_cpufreq_cpu_callback(struct notifier_block *nfb,
-		unsigned long action, void *hcpu)
-{
-	unsigned int cpu = (unsigned long)hcpu;
 
-	switch (action) {
-	case CPU_ONLINE:
-	case CPU_ONLINE_FROZEN:
-		per_cpu(cpufreq_suspend, cpu).device_suspended = 0;
-		break;
-	case CPU_DOWN_PREPARE:
-	case CPU_DOWN_PREPARE_FROZEN:
-		mutex_lock(&per_cpu(cpufreq_suspend, cpu).suspend_mutex);
-		per_cpu(cpufreq_suspend, cpu).device_suspended = 1;
-		mutex_unlock(&per_cpu(cpufreq_suspend, cpu).suspend_mutex);
-		break;
-	case CPU_DOWN_FAILED:
-	case CPU_DOWN_FAILED_FROZEN:
-		per_cpu(cpufreq_suspend, cpu).device_suspended = 0;
-		break;
-	}
-
-	return NOTIFY_OK;
-}
 
 static struct notifier_block __refdata msm_cpufreq_cpu_notifier = {
 	.notifier_call = msm_cpufreq_cpu_callback,
@@ -429,8 +432,7 @@ static int __init msm_cpufreq_register(void)
 		per_cpu(cpufreq_suspend, cpu).device_suspended = 0;
 	}
 
-	msm_cpufreq_wq = alloc_workqueue("msm-cpufreq",
-			WQ_MEM_RECLAIM | WQ_HIGHPRI, 1);
+	msm_cpufreq_wq = create_workqueue("msm-cpufreq");
 	register_hotcpu_notifier(&msm_cpufreq_cpu_notifier);
 
 	return cpufreq_register_driver(&msm_cpufreq_driver);
