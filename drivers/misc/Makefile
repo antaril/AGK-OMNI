@@ -81,8 +81,5 @@ obj-$(CONFIG_CABLE_DETECT_8XXX) += cable_detect_8xxx.o
 obj-$(CONFIG_CABLE_DETECT_8930) += cable_detect_8930.o
 obj-y += time_helper.o
 obj-y += state_helper.o
-<<<<<<< HEAD
-=======
 obj-$(CONFIG_FPR_SPI)	+=fpr/
->>>>>>> 0f0054a... misc: update from HTC One Google Edition source - intervigil
 obj-y += mako_hotplug_control.o
