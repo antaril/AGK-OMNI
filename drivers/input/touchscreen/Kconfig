@@ -1011,4 +1011,22 @@ config TOUCHSCREEN_MAX11871
 
           If unsure, say N.
 
+<<<<<<< HEAD
+=======
+config TOUCHSCREEN_MAX1187X
+        tristate "Maxim max1187X touchscreen"
+        depends on I2C
+        help
+          Say Y here if you have a Maxim max11871 touchscreen connected
+          to your system. max11871 conforms to the Maxim Touch Protocol
+          (MTP) defined by Maxim.
+
+          If unsure, say N.
+
+>>>>>>> 0f0054a... misc: update from HTC One Google Edition source - intervigil
+
+config TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE
+        tristate "Sweep2Wake for SYNAPTICS_3k based touchscreens"
+        depends on TOUCHSCREEN_SYNAPTICS_3K
+        default n
 endif
