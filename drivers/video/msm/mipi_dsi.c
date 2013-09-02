@@ -110,8 +110,7 @@ static int mipi_dsi_off(struct platform_device *pdev)
 				if (MDP_REV_303 != mdp_rev)
 					gpio_free(vsync_gpio);
 			}
-			if (!mfd->panel_info.lcdc.no_set_tear)
-				mipi_dsi_set_tear_off(mfd);
+			mipi_dsi_set_tear_off(mfd);
 		}
 	}
 
