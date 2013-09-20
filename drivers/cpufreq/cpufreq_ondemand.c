@@ -122,7 +122,10 @@ static unsigned int dbs_enable;	/* number of CPUs using this policy */
  */
 static DEFINE_MUTEX(dbs_mutex);
 
+
 static struct workqueue_struct *dbs_wq;
+
+static struct workqueue_struct *input_wq;
 
 static DEFINE_PER_CPU(struct work_struct, dbs_refresh_work);
 
@@ -1132,8 +1135,14 @@ static void dbs_input_event(struct input_handle *handle, unsigned int type,
 		return;
 	}
 
+
 	for_each_online_cpu(i)
 		queue_work_on(i, dbs_wq, &per_cpu(dbs_refresh_work, i));
+
+	for_each_online_cpu(i) {
+		queue_work_on(i, input_wq, &per_cpu(dbs_refresh_work, i));
+	}
+
 }
 
 static int dbs_input_connect(struct input_handler *handler,
@@ -1351,6 +1360,7 @@ static int __init cpufreq_gov_dbs_init(void)
 		struct cpu_dbs_info_s *this_dbs_info =
 			&per_cpu(od_cpu_dbs_info, i);
 
+
 		mutex_init(&this_dbs_info->timer_mutex);
 		INIT_WORK(&per_cpu(dbs_refresh_work, i), dbs_refresh_callback);
 
@@ -1360,6 +1370,9 @@ static int __init cpufreq_gov_dbs_init(void)
 		this_dbs_info->sync_thread = kthread_run(dbs_sync_thread,
 							 (void *)i,
 							 "dbs_sync/%d", i);
+		mutex_init(&this_dbs_info->timer_mutex);
+		INIT_WORK(&per_cpu(dbs_refresh_work, i), dbs_refresh_callback);
+
 	}
 
 	return cpufreq_register_governor(&cpufreq_gov_ondemand);
@@ -1367,6 +1380,7 @@ static int __init cpufreq_gov_dbs_init(void)
 
 static void __exit cpufreq_gov_dbs_exit(void)
 {
+
 	int i;
 	cpufreq_unregister_governor(&cpufreq_gov_ondemand);
 	for_each_possible_cpu(i) {
@@ -1376,6 +1390,9 @@ static void __exit cpufreq_gov_dbs_exit(void)
 		kthread_stop(this_dbs_info->sync_thread);
 	}
 	destroy_workqueue(dbs_wq);
+
+	cpufreq_unregister_governor(&cpufreq_gov_ondemand);
+	destroy_workqueue(input_wq);
 }
 
 
