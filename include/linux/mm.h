@@ -25,7 +25,7 @@ struct file_ra_state;
 struct user_struct;
 struct writeback_control;
 
-#ifndef CONFIG_DISCONTIGMEM          
+#ifndef CONFIG_DISCONTIGMEM
 extern unsigned long max_mapnr;
 #endif
 
@@ -61,58 +61,58 @@ extern struct rw_semaphore nommu_region_sem;
 extern unsigned int kobjsize(const void *objp);
 #endif
 
-#define VM_READ		0x00000001	
+#define VM_READ		0x00000001
 #define VM_WRITE	0x00000002
 #define VM_EXEC		0x00000004
 #define VM_SHARED	0x00000008
 
-#define VM_MAYREAD	0x00000010	
+#define VM_MAYREAD	0x00000010
 #define VM_MAYWRITE	0x00000020
 #define VM_MAYEXEC	0x00000040
 #define VM_MAYSHARE	0x00000080
 
-#define VM_GROWSDOWN	0x00000100	
+#define VM_GROWSDOWN	0x00000100
 #if defined(CONFIG_STACK_GROWSUP) || defined(CONFIG_IA64)
 #define VM_GROWSUP	0x00000200
 #else
 #define VM_GROWSUP	0x00000000
-#define VM_NOHUGEPAGE	0x00000200	
+#define VM_NOHUGEPAGE	0x00000200
 #endif
-#define VM_PFNMAP	0x00000400	
-#define VM_DENYWRITE	0x00000800	
+#define VM_PFNMAP	0x00000400
+#define VM_DENYWRITE	0x00000800
 
 #define VM_EXECUTABLE	0x00001000
 #define VM_LOCKED	0x00002000
-#define VM_IO           0x00004000	
+#define VM_IO           0x00004000
 
-					
-#define VM_SEQ_READ	0x00008000	
-#define VM_RAND_READ	0x00010000	
 
-#define VM_DONTCOPY	0x00020000      
-#define VM_DONTEXPAND	0x00040000	
-#define VM_RESERVED	0x00080000	
-#define VM_ACCOUNT	0x00100000	
-#define VM_NORESERVE	0x00200000	
-#define VM_HUGETLB	0x00400000	
-#define VM_NONLINEAR	0x00800000	
+#define VM_SEQ_READ	0x00008000
+#define VM_RAND_READ	0x00010000
+
+#define VM_DONTCOPY	0x00020000
+#define VM_DONTEXPAND	0x00040000
+#define VM_RESERVED	0x00080000
+#define VM_ACCOUNT	0x00100000
+#define VM_NORESERVE	0x00200000
+#define VM_HUGETLB	0x00400000
+#define VM_NONLINEAR	0x00800000
 #ifndef CONFIG_TRANSPARENT_HUGEPAGE
-#define VM_MAPPED_COPY	0x01000000	
+#define VM_MAPPED_COPY	0x01000000
 #else
-#define VM_HUGEPAGE	0x01000000	
+#define VM_HUGEPAGE	0x01000000
 #endif
-#define VM_INSERTPAGE	0x02000000	
-#define VM_NODUMP	0x04000000	
+#define VM_INSERTPAGE	0x02000000
+#define VM_NODUMP	0x04000000
 
-#define VM_CAN_NONLINEAR 0x08000000	
-#define VM_MIXEDMAP	0x10000000	
-#define VM_SAO		0x20000000	
-#define VM_PFN_AT_MMAP	0x40000000	
-#define VM_MERGEABLE	0x80000000	
+#define VM_CAN_NONLINEAR 0x08000000
+#define VM_MIXEDMAP	0x10000000
+#define VM_SAO		0x20000000
+#define VM_PFN_AT_MMAP	0x40000000
+#define VM_MERGEABLE	0x80000000
 
 #define VM_STACK_INCOMPLETE_SETUP	(VM_RAND_READ | VM_SEQ_READ)
 
-#ifndef VM_STACK_DEFAULT_FLAGS		
+#ifndef VM_STACK_DEFAULT_FLAGS
 #define VM_STACK_DEFAULT_FLAGS VM_DATA_DEFAULT_FLAGS
 #endif
 
@@ -132,12 +132,12 @@ extern unsigned int kobjsize(const void *objp);
 
 extern pgprot_t protection_map[16];
 
-#define FAULT_FLAG_WRITE	0x01	
-#define FAULT_FLAG_NONLINEAR	0x02	
-#define FAULT_FLAG_MKWRITE	0x04	
-#define FAULT_FLAG_ALLOW_RETRY	0x08	
-#define FAULT_FLAG_RETRY_NOWAIT	0x10	
-#define FAULT_FLAG_KILLABLE	0x20	
+#define FAULT_FLAG_WRITE	0x01
+#define FAULT_FLAG_NONLINEAR	0x02
+#define FAULT_FLAG_MKWRITE	0x04
+#define FAULT_FLAG_ALLOW_RETRY	0x08
+#define FAULT_FLAG_RETRY_NOWAIT	0x10
+#define FAULT_FLAG_KILLABLE	0x20
 
 static inline int is_linear_pfn_mapping(struct vm_area_struct *vma)
 {
@@ -150,11 +150,11 @@ static inline int is_pfn_mapping(struct vm_area_struct *vma)
 }
 
 struct vm_fault {
-	unsigned int flags;		
-	pgoff_t pgoff;			
-	void __user *virtual_address;	
+	unsigned int flags;
+	pgoff_t pgoff;
+	void __user *virtual_address;
 
-	struct page *page;		
+	struct page *page;
 };
 
 struct vm_operations_struct {
@@ -630,20 +630,20 @@ static inline int page_mapped(struct page *page)
 }
 
 
-#define VM_FAULT_MINOR	0 
+#define VM_FAULT_MINOR	0
 
 #define VM_FAULT_OOM	0x0001
 #define VM_FAULT_SIGBUS	0x0002
 #define VM_FAULT_MAJOR	0x0004
-#define VM_FAULT_WRITE	0x0008	
-#define VM_FAULT_HWPOISON 0x0010	
-#define VM_FAULT_HWPOISON_LARGE 0x0020  
+#define VM_FAULT_WRITE	0x0008
+#define VM_FAULT_HWPOISON 0x0010
+#define VM_FAULT_HWPOISON_LARGE 0x0020
 
-#define VM_FAULT_NOPAGE	0x0100	
-#define VM_FAULT_LOCKED	0x0200	
-#define VM_FAULT_RETRY	0x0400	
+#define VM_FAULT_NOPAGE	0x0100
+#define VM_FAULT_LOCKED	0x0200
+#define VM_FAULT_RETRY	0x0400
 
-#define VM_FAULT_HWPOISON_LARGE_MASK 0xf000 
+#define VM_FAULT_HWPOISON_LARGE_MASK 0xf000
 
 #define VM_FAULT_ERROR	(VM_FAULT_OOM | VM_FAULT_SIGBUS | VM_FAULT_HWPOISON | \
 			 VM_FAULT_HWPOISON_LARGE)
@@ -655,7 +655,7 @@ extern void pagefault_out_of_memory(void);
 
 #define offset_in_page(p)	((unsigned long)(p) & ~PAGE_MASK)
 
-#define SHOW_MEM_FILTER_NODES	(0x0001u)	
+#define SHOW_MEM_FILTER_NODES	(0x0001u)
 
 extern void show_free_areas(unsigned int flags);
 extern bool skip_free_areas_node(unsigned int flags, int nid);
@@ -670,10 +670,10 @@ extern int user_shm_lock(size_t, struct user_struct *);
 extern void user_shm_unlock(size_t, struct user_struct *);
 
 struct zap_details {
-	struct vm_area_struct *nonlinear_vma;	
-	struct address_space *check_mapping;	
-	pgoff_t	first_index;			
-	pgoff_t last_index;			
+	struct vm_area_struct *nonlinear_vma;
+	struct address_space *check_mapping;
+	pgoff_t	first_index;
+	pgoff_t last_index;
 };
 
 struct page *vm_normal_page(struct vm_area_struct *vma, unsigned long addr,
@@ -741,7 +741,7 @@ static inline int handle_mm_fault(struct mm_struct *mm,
 			struct vm_area_struct *vma, unsigned long address,
 			unsigned int flags)
 {
-	
+
 	BUG();
 	return VM_FAULT_SIGBUS;
 }
@@ -749,7 +749,7 @@ static inline int fixup_user_fault(struct task_struct *tsk,
 		struct mm_struct *mm, unsigned long address,
 		unsigned int fault_flags)
 {
-	
+
 	BUG();
 	return -EFAULT;
 }
@@ -946,7 +946,7 @@ static inline pmd_t *pmd_alloc(struct mm_struct *mm, pud_t *pud, unsigned long a
 	return (unlikely(pud_none(*pud)) && __pmd_alloc(mm, pud, address))?
 		NULL: pmd_offset(pud, address);
 }
-#endif 
+#endif
 
 #if USE_SPLIT_PTLOCKS
 #define __pte_lockptr(page)	&((page)->ptl)
@@ -955,11 +955,11 @@ static inline pmd_t *pmd_alloc(struct mm_struct *mm, pud_t *pud, unsigned long a
 } while (0)
 #define pte_lock_deinit(page)	((page)->mapping = NULL)
 #define pte_lockptr(mm, pmd)	({(void)(mm); __pte_lockptr(pmd_page(*(pmd)));})
-#else	
+#else
 #define pte_lock_init(page)	do {} while (0)
 #define pte_lock_deinit(page)	do {} while (0)
 #define pte_lockptr(mm, pmd)	({(void)(pmd); &(mm)->page_table_lock;})
-#endif 
+#endif
 
 static inline void pgtable_page_ctor(struct page *page)
 {
@@ -1020,7 +1020,7 @@ extern void free_bootmem_with_active_regions(int nid,
 						unsigned long max_low_pfn);
 extern void sparse_memory_present_with_active_regions(int nid);
 
-#endif 
+#endif
 
 #if !defined(CONFIG_HAVE_MEMBLOCK_NODE_MAP) && \
     !defined(CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID)
@@ -1032,7 +1032,7 @@ static inline int __early_pfn_to_nid(unsigned long pfn)
 extern int __meminit early_pfn_to_nid(unsigned long pfn);
 #ifdef CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID
 extern int __meminit __early_pfn_to_nid(unsigned long pfn);
-#endif 
+#endif
 #endif
 
 extern void set_dma_reserve(unsigned long new_dma_reserve);
@@ -1130,8 +1130,8 @@ extern int filemap_fault(struct vm_area_struct *, struct vm_fault *);
 int write_one_page(struct page *page, int wait);
 void task_dirty_inc(struct task_struct *tsk);
 
-#define VM_MAX_READAHEAD	2048
-#define VM_MIN_READAHEAD	16	
+#define VM_MAX_READAHEAD	4096
+#define VM_MIN_READAHEAD	16
 
 int force_page_cache_readahead(struct address_space *mapping, struct file *filp,
 			pgoff_t offset, unsigned long nr_to_read);
@@ -1213,15 +1213,15 @@ int vm_insert_mixed(struct vm_area_struct *vma, unsigned long addr,
 
 struct page *follow_page(struct vm_area_struct *, unsigned long address,
 			unsigned int foll_flags);
-#define FOLL_WRITE	0x01	
-#define FOLL_TOUCH	0x02	
-#define FOLL_GET	0x04	
-#define FOLL_DUMP	0x08	
-#define FOLL_FORCE	0x10	
-#define FOLL_NOWAIT	0x20	
-#define FOLL_MLOCK	0x40	
-#define FOLL_SPLIT	0x80	
-#define FOLL_HWPOISON	0x100	
+#define FOLL_WRITE	0x01
+#define FOLL_TOUCH	0x02
+#define FOLL_GET	0x04
+#define FOLL_DUMP	0x08
+#define FOLL_FORCE	0x10
+#define FOLL_NOWAIT	0x20
+#define FOLL_MLOCK	0x40
+#define FOLL_SPLIT	0x80
+#define FOLL_HWPOISON	0x100
 
 typedef int (*pte_fn_t)(pte_t *pte, pgtable_t token, unsigned long addr,
 			void *data);
@@ -1235,19 +1235,19 @@ static inline void vm_stat_account(struct mm_struct *mm,
 			unsigned long flags, struct file *file, long pages)
 {
 }
-#endif 
+#endif
 
 #ifdef CONFIG_DEBUG_PAGEALLOC
 extern void kernel_map_pages(struct page *page, int numpages, int enable);
 #ifdef CONFIG_HIBERNATION
 extern bool kernel_page_present(struct page *page);
-#endif 
+#endif
 #else
 static inline void
 kernel_map_pages(struct page *page, int numpages, int enable) {}
 #ifdef CONFIG_HIBERNATION
 static inline bool kernel_page_present(struct page *page) { return true; }
-#endif 
+#endif
 #endif
 
 extern struct vm_area_struct *get_gate_vma(struct mm_struct *mm);
@@ -1257,7 +1257,7 @@ int in_gate_area(struct mm_struct *mm, unsigned long addr);
 #else
 int in_gate_area_no_mm(unsigned long addr);
 #define in_gate_area(mm, addr) ({(void)mm; in_gate_area_no_mm(addr);})
-#endif	
+#endif
 
 int drop_caches_sysctl_handler(struct ctl_table *, int,
 					void __user *, size_t *, loff_t *);
@@ -1317,7 +1317,7 @@ extern void clear_huge_page(struct page *page,
 extern void copy_user_huge_page(struct page *dst, struct page *src,
 				unsigned long addr, struct vm_area_struct *vma,
 				unsigned int pages_per_huge_page);
-#endif 
+#endif
 
 #ifdef CONFIG_DEBUG_PAGEALLOC
 extern unsigned int _debug_guardpage_minorder;
@@ -1334,7 +1334,7 @@ static inline bool page_is_guard(struct page *page)
 #else
 static inline unsigned int debug_guardpage_minorder(void) { return 0; }
 static inline bool page_is_guard(struct page *page) { return false; }
-#endif 
+#endif
 
-#endif 
-#endif 
+#endif
+#endif
