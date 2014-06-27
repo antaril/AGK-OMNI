@@ -1683,15 +1683,12 @@ config MSM_CPU_FREQ_MIN
 
 endif # CPU_FREQ_MSM
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 config MSM_CPU_AVS
 	bool "Enable software controlled Adaptive Voltage Scaling (AVS)"
 	depends on (ARCH_MSM_SCORPION && QSD_SVS)
 	depends on ARCH_QSD8X50
-=======
-=======
->>>>>>> d9721cc... intelli_plug by faux123 (squashed commits)
+
 config INTELLI_PLUG
 	bool "Enable intelli-plug cpu hotplug driver"
 	default n
@@ -1713,7 +1710,7 @@ config CPU_OVERCLOCK
 config OC_ULTIMATE
 	bool "allow 1.944 GHZ max OC option"
 	depends on CPU_OVERCLOCK
->>>>>>> d9721cc... intelli_plug by faux123 (squashed commits)
+
 	default n
 	select MSM_AVS_HW
 	help
