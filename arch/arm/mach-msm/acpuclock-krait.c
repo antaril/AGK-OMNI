@@ -85,7 +85,7 @@ static void set_pri_clk_src(struct scalable *sc, u32 pri_src_sel)
 	regval &= ~0x3;
 	regval |= (pri_src_sel & 0x3);
 	set_l2_indirect_reg(sc->l2cpmr_iaddr, regval);
-	
+
 	mb();
 	udelay(1);
 }
@@ -94,21 +94,21 @@ static void __cpuinit set_sec_clk_src(struct scalable *sc, u32 sec_src_sel)
 {
 	u32 regval;
 
-	
+
 	regval = get_l2_indirect_reg(sc->l2cpmr_iaddr);
 	regval |= SECCLKAGD;
 	set_l2_indirect_reg(sc->l2cpmr_iaddr, regval);
 
-	
+
 	regval &= ~(0x3 << 2);
 	regval |= ((sec_src_sel & 0x3) << 2);
 	set_l2_indirect_reg(sc->l2cpmr_iaddr, regval);
 
-	
+
 	regval &= ~SECCLKAGD;
 	set_l2_indirect_reg(sc->l2cpmr_iaddr, regval);
 
-	
+
 	mb();
 	udelay(1);
 }
@@ -142,25 +142,25 @@ static void disable_rpm_vreg(struct vreg *vreg)
 static void hfpll_enable(struct scalable *sc, bool skip_regulators)
 {
 	if (!skip_regulators) {
-		
+
 		enable_rpm_vreg(&sc->vreg[VREG_HFPLL_A]);
 		enable_rpm_vreg(&sc->vreg[VREG_HFPLL_B]);
 	}
 
-	
+
 	writel_relaxed(0x2, sc->hfpll_base + drv.hfpll_data->mode_offset);
 
 	mb();
 	udelay(10);
 
-	
+
 	writel_relaxed(0x6, sc->hfpll_base + drv.hfpll_data->mode_offset);
 
-	
+
 	mb();
 	udelay(60);
 
-	
+
 	writel_relaxed(0x7, sc->hfpll_base + drv.hfpll_data->mode_offset);
 }
 
@@ -169,7 +169,7 @@ static void hfpll_disable(struct scalable *sc, bool skip_regulators)
 	writel_relaxed(0, sc->hfpll_base + drv.hfpll_data->mode_offset);
 
 	if (!skip_regulators) {
-		
+
 		disable_rpm_vreg(&sc->vreg[VREG_HFPLL_B]);
 		disable_rpm_vreg(&sc->vreg[VREG_HFPLL_A]);
 	}
@@ -186,7 +186,7 @@ static unsigned int compute_l2_level(struct scalable *sc, unsigned int vote_l)
 	unsigned int new_l = 0;
 	int cpu;
 
-	
+
 	sc->l2_vote = vote_l;
 	for_each_present_cpu(cpu)
 		new_l = max(new_l, drv.scalable[cpu].l2_vote);
@@ -198,7 +198,7 @@ static void set_bus_bw(unsigned int bw)
 {
 	int ret;
 
-	
+
 	ret = msm_bus_scale_client_update_request(drv.bus_perf_client, bw);
 	if (ret)
 		dev_err(drv.dev, "bandwidth request failed (%d)\n", ret);
@@ -212,12 +212,12 @@ static void set_speed(struct scalable *sc, const struct core_speed *tgt_s,
 	if (strt_s->src == HFPLL && tgt_s->src == HFPLL) {
 		set_pri_clk_src(sc, PRI_SRC_SEL_SEC_SRC);
 
-		
+
 		hfpll_disable(sc, true);
 		hfpll_set_rate(sc, tgt_s);
 		hfpll_enable(sc, true);
 
-		
+
 		set_pri_clk_src(sc, tgt_s->pri_src_sel);
 	} else if (strt_s->src == HFPLL && tgt_s->src != HFPLL) {
 		set_pri_clk_src(sc, tgt_s->pri_src_sel);
@@ -256,7 +256,7 @@ static int increase_vdd(int cpu, struct vdd_data *data,
 		 sc->vreg[VREG_MEM].cur_vdd = data->vdd_mem;
 	}
 
-	
+
 	if (data->vdd_dig > sc->vreg[VREG_DIG].cur_vdd) {
 		rc = rpm_regulator_set_voltage(sc->vreg[VREG_DIG].rpm_reg,
 				data->vdd_dig, sc->vreg[VREG_DIG].max_vdd);
@@ -269,7 +269,7 @@ static int increase_vdd(int cpu, struct vdd_data *data,
 		sc->vreg[VREG_DIG].cur_vdd = data->vdd_dig;
 	}
 
-	
+
 	if (data->ua_core > sc->vreg[VREG_CORE].cur_ua) {
 		rc = regulator_set_optimum_mode(sc->vreg[VREG_CORE].reg,
 						data->ua_core);
@@ -316,7 +316,7 @@ static void decrease_vdd(int cpu, struct vdd_data *data,
 		sc->vreg[VREG_CORE].cur_vdd = data->vdd_core;
 	}
 
-	
+
 	if (data->ua_core < sc->vreg[VREG_CORE].cur_ua) {
 		ret = regulator_set_optimum_mode(sc->vreg[VREG_CORE].reg,
 						data->ua_core);
@@ -328,7 +328,7 @@ static void decrease_vdd(int cpu, struct vdd_data *data,
 		sc->vreg[VREG_CORE].cur_ua = data->ua_core;
 	}
 
-	
+
 	if (data->vdd_dig < sc->vreg[VREG_DIG].cur_vdd) {
 		ret = rpm_regulator_set_voltage(sc->vreg[VREG_DIG].rpm_reg,
 				data->vdd_dig, sc->vreg[VREG_DIG].max_vdd);
@@ -458,11 +458,11 @@ static int acpuclk_krait_set_rate(int cpu, unsigned long rate,
 
 	strt_acpu_s = drv.scalable[cpu].cur_speed;
 
-	
+
 	if (rate == strt_acpu_s->khz)
 		goto out;
 
-	
+
 	for (tgt = drv.acpu_freq_tbl; tgt->speed.khz != 0; tgt++) {
 		if (tgt->speed.khz == rate) {
 			tgt_acpu_s = &tgt->speed;
@@ -474,19 +474,19 @@ static int acpuclk_krait_set_rate(int cpu, unsigned long rate,
 		goto out;
 	}
 
-	
+
 	vdd_data.vdd_mem  = calculate_vdd_mem(tgt);
 	vdd_data.vdd_dig  = calculate_vdd_dig(tgt);
 	vdd_data.vdd_core = calculate_vdd_core(tgt);
 	vdd_data.ua_core = tgt->ua_core;
 
-	
+
 	if (reason == SETRATE_CPUFREQ && drv.scalable[cpu].avs_enabled) {
 		AVS_DISABLE(cpu);
 		drv.scalable[cpu].avs_enabled = false;
 	}
 
-	
+
 	if (reason == SETRATE_CPUFREQ || reason == SETRATE_HOTPLUG) {
 		rc = increase_vdd(cpu, &vdd_data, reason);
 		udelay(60);
@@ -497,7 +497,7 @@ static int acpuclk_krait_set_rate(int cpu, unsigned long rate,
 
 		prev_l2_src =
 			drv.l2_freq_tbl[drv.scalable[cpu].l2_vote].speed.src;
-		
+
 		if (drv.l2_freq_tbl[tgt->l2_level].speed.src == HFPLL) {
 			rc = enable_l2_regulators();
 
@@ -513,7 +513,7 @@ static int acpuclk_krait_set_rate(int cpu, unsigned long rate,
 
 	skip_regulators = (reason == SETRATE_PC);
 
-	
+
 	set_speed(&drv.scalable[cpu], tgt_acpu_s, skip_regulators);
 
 	set_acpuclk_cpu_freq_foot_print(cpu, tgt_acpu_s->khz);
@@ -530,24 +530,24 @@ static int acpuclk_krait_set_rate(int cpu, unsigned long rate,
 
 	spin_unlock(&l2_lock);
 
-	
+
 	if (reason == SETRATE_PC || reason == SETRATE_SWFI)
 		goto out;
 
 	if (prev_l2_src == HFPLL)
 		disable_l2_regulators();
 
-	
+
 	set_bus_bw(drv.l2_freq_tbl[tgt_l2_l].bw_level);
 
 	set_acpuclk_foot_print(cpu, 0x7);
 
-	
+
 	decrease_vdd(cpu, &vdd_data, reason);
 
 	set_acpuclk_foot_print(cpu, 0x8);
 
-	
+
 	if (reason == SETRATE_CPUFREQ && tgt->avsdscr_setting) {
 		AVS_ENABLE(cpu, tgt->avsdscr_setting);
 		drv.scalable[cpu].avs_enabled = true;
@@ -583,21 +583,21 @@ static void __init hfpll_init(struct scalable *sc,
 {
 	dev_dbg(drv.dev, "Initializing HFPLL%d\n", sc - drv.scalable);
 
-	
+
 	hfpll_disable(sc, true);
 
-	
+
 	writel_relaxed(drv.hfpll_data->config_val,
 		       sc->hfpll_base + drv.hfpll_data->config_offset);
 	writel_relaxed(0, sc->hfpll_base + drv.hfpll_data->m_offset);
 	writel_relaxed(1, sc->hfpll_base + drv.hfpll_data->n_offset);
 
-	
+
 	if (drv.hfpll_data->has_droop_ctl)
 		writel_relaxed(drv.hfpll_data->droop_val,
 			       sc->hfpll_base + drv.hfpll_data->droop_offset);
 
-	
+
 	hfpll_set_rate(sc, tgt_s);
 	hfpll_enable(sc, false);
 }
@@ -677,7 +677,7 @@ static int __cpuinit regulator_init(struct scalable *sc,
 	if (ret)
 		goto err_hfpll_b;
 
-	
+
 	sc->vreg[VREG_CORE].reg = regulator_get(drv.dev,
 				  sc->vreg[VREG_CORE].name);
 	if (IS_ERR(sc->vreg[VREG_CORE].reg)) {
@@ -745,7 +745,7 @@ static int __cpuinit init_clock_sources(struct scalable *sc,
 	u32 regval;
 	void __iomem *aux_reg;
 
-	
+
 	if (sc->aux_clk_sel_phys) {
 		aux_reg = ioremap(sc->aux_clk_sel_phys, 4);
 		if (!aux_reg)
@@ -754,17 +754,17 @@ static int __cpuinit init_clock_sources(struct scalable *sc,
 		iounmap(aux_reg);
 	}
 
-	
+
 	set_sec_clk_src(sc, sc->sec_clk_sel);
 	set_pri_clk_src(sc, PRI_SRC_SEL_SEC_SRC);
 	hfpll_init(sc, tgt_s);
 
-	
+
 	regval = get_l2_indirect_reg(sc->l2cpmr_iaddr);
 	regval &= ~(0x3 << 6);
 	set_l2_indirect_reg(sc->l2cpmr_iaddr, regval);
 
-	
+
 	set_pri_clk_src(sc, tgt_s->pri_src_sel);
 	sc->cur_speed = tgt_s;
 
@@ -948,7 +948,7 @@ static void __init cpufreq_table_init(void)
 
 	for_each_possible_cpu(cpu) {
 		int i, freq_cnt = 0;
-		
+
 		for (i = 0; drv.acpu_freq_tbl[i].speed.khz != 0
 				&& freq_cnt < ARRAY_SIZE(*freq_table); i++) {
 			if (drv.acpu_freq_tbl[i].use_for_scaling) {
@@ -958,7 +958,7 @@ static void __init cpufreq_table_init(void)
 				freq_cnt++;
 			}
 		}
-		
+
 		BUG_ON(drv.acpu_freq_tbl[i].speed.khz != 0);
 
 		freq_table[cpu][freq_cnt].index = freq_cnt;
@@ -967,7 +967,7 @@ static void __init cpufreq_table_init(void)
 		dev_info(drv.dev, "CPU%d: %d frequencies supported\n",
 			cpu, freq_cnt);
 
-		
+
 		cpufreq_frequency_table_get_attr(freq_table[cpu], cpu);
 	}
 }
@@ -997,7 +997,7 @@ static int __cpuinit acpuclk_cpu_callback(struct notifier_block *nfb,
 	switch (action & ~CPU_TASKS_FROZEN) {
 	case CPU_DEAD:
 		prev_khz[cpu] = acpuclk_krait_get_rate(cpu);
-		
+
 	case CPU_UP_CANCELED:
 		acpuclk_krait_set_rate(cpu, hot_unplug_khz, SETRATE_HOTPLUG);
 		regulator_set_optimum_mode(sc->vreg[VREG_CORE].reg, 0);
@@ -1107,7 +1107,7 @@ static struct pvs_table * __init select_freq_plan(u32 pte_efuse_phys,
 	pte_efuse_val = readl_relaxed(pte_efuse);
 	iounmap(pte_efuse);
 
-	
+
 	drv.speed_bin = get_speed_bin(pte_efuse_val);
 	drv.pvs_bin = get_pvs_bin(pte_efuse_val);
 

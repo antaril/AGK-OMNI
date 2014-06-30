@@ -1,4 +1,4 @@
-/* Copyright (c) 2012, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012, Code Aurora Forum. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -18,7 +18,6 @@
 #include <mach/board.h>
 #include <mach/msm_dcvs.h>
 #include <mach/socinfo.h>
-
 #include "devices.h"
 #include "board-m7.h"
 
@@ -70,7 +69,7 @@ static struct msm_dcvs_core_info grp3d_core_info = {
 		.num_freq	= ARRAY_SIZE(grp3d_freq),
 	}
 };
-#endif /* CONFIG_MSM_DCVS */
+#endif 
 
 #ifdef CONFIG_MSM_BUS_SCALING
 static struct msm_bus_vectors grp3d_init_vectors[] = {
@@ -93,13 +92,13 @@ static struct msm_bus_vectors grp3d_low_vectors[] = {
 		.src = MSM_BUS_MASTER_GRAPHICS_3D,
 		.dst = MSM_BUS_SLAVE_EBI_CH0,
 		.ab = 0,
-		.ib = KGSL_CONVERT_TO_MBPS(1000),
+		.ib = KGSL_CONVERT_TO_MBPS(1500),
 	},
 	{
 		.src = MSM_BUS_MASTER_GRAPHICS_3D_PORT1,
 		.dst = MSM_BUS_SLAVE_EBI_CH0,
 		.ab = 0,
-		.ib = KGSL_CONVERT_TO_MBPS(1000),
+		.ib = KGSL_CONVERT_TO_MBPS(1500),
 	},
 };
 
@@ -123,13 +122,13 @@ static struct msm_bus_vectors grp3d_nominal_high_vectors[] = {
 		.src = MSM_BUS_MASTER_GRAPHICS_3D,
 		.dst = MSM_BUS_SLAVE_EBI_CH0,
 		.ab = 0,
-		.ib = KGSL_CONVERT_TO_MBPS(3200),
+		.ib = KGSL_CONVERT_TO_MBPS(2656),
 	},
 	{
 		.src = MSM_BUS_MASTER_GRAPHICS_3D_PORT1,
 		.dst = MSM_BUS_SLAVE_EBI_CH0,
 		.ab = 0,
-		.ib = KGSL_CONVERT_TO_MBPS(3200),
+		.ib = KGSL_CONVERT_TO_MBPS(2656),
 	},
 };
 
@@ -138,13 +137,13 @@ static struct msm_bus_vectors grp3d_max_vectors[] = {
 		.src = MSM_BUS_MASTER_GRAPHICS_3D,
 		.dst = MSM_BUS_SLAVE_EBI_CH0,
 		.ab = 0,
-		.ib = KGSL_CONVERT_TO_MBPS(4660),
+		.ib = KGSL_CONVERT_TO_MBPS(4264),
 	},
 	{
 		.src = MSM_BUS_MASTER_GRAPHICS_3D_PORT1,
 		.dst = MSM_BUS_SLAVE_EBI_CH0,
 		.ab = 0,
-		.ib = KGSL_CONVERT_TO_MBPS(4660),
+		.ib = KGSL_CONVERT_TO_MBPS(4264),
 	},
 };
 
@@ -181,7 +180,7 @@ static struct msm_bus_scale_pdata grp3d_bus_scale_pdata = {
 static struct resource kgsl_3d0_resources[] = {
 	{
 		.name = KGSL_3D0_REG_MEMORY,
-		.start = 0x04300000, /* GFX3D address */
+		.start = 0x04300000, 
 		.end = 0x0431ffff,
 		.flags = IORESOURCE_MEM,
 	},
@@ -197,6 +196,7 @@ static const struct kgsl_iommu_ctx kgsl_3d0_iommu0_ctxs[] = {
 	{ "gfx3d_user", 0 },
 	{ "gfx3d_priv", 1 },
 };
+
 
 static const struct kgsl_iommu_ctx kgsl_3d0_iommu1_ctxs[] = {
 	{ "gfx3d1_user", 0 },
@@ -220,14 +220,8 @@ static struct kgsl_device_iommu_data kgsl_3d0_iommu_data[] = {
 
 static struct kgsl_device_platform_data kgsl_3d0_pdata = {
 	.pwrlevel = {
-
 		{
-			.gpu_freq = 487500000,
-			.bus_freq = 4,
-			.io_fraction = 0,
-		},
-		{
-			.gpu_freq = 450000000,
+			.gpu_freq = 533000000,
 			.bus_freq = 4,
 			.io_fraction = 0,
 		},
@@ -247,17 +241,12 @@ static struct kgsl_device_platform_data kgsl_3d0_pdata = {
 			.io_fraction = 100,
 		},
 		{
-			.gpu_freq = 128000000,
-			.bus_freq = 1,
-			.io_fraction = 100,
-		},
-		{
 			.gpu_freq = 27000000,
 			.bus_freq = 0,
 		},
 	},
-	.init_level = 5,
-	.num_levels = 7,
+	.init_level = 2,
+	.num_levels = 4,
 	.set_grp_async = NULL,
 	.idle_timeout = HZ/10,
 	.nap_allowed = true,
@@ -273,7 +262,7 @@ static struct kgsl_device_platform_data kgsl_3d0_pdata = {
 #endif
 };
 
-struct platform_device device_kgsl_3d0 = {
+static struct platform_device device_kgsl_3d0 = {
 	.name = "kgsl-3d0",
 	.id = 0,
 	.num_resources = ARRAY_SIZE(kgsl_3d0_resources),
@@ -288,7 +277,7 @@ void __init m7_init_gpu(void)
 	unsigned int version = socinfo_get_version();
 
 	if (cpu_is_apq8064ab())
-		kgsl_3d0_pdata.pwrlevel[0].gpu_freq = 450000000;
+		kgsl_3d0_pdata.pwrlevel[0].gpu_freq = 533000000;
 	if (SOCINFO_VERSION_MAJOR(version) == 2) {
 		kgsl_3d0_pdata.chipid = ADRENO_CHIPID(3, 2, 0, 2);
 	} else {

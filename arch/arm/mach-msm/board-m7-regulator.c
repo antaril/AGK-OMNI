@@ -28,7 +28,6 @@ VREG_CONSUMERS(L2) = {
 	REGULATOR_SUPPLY("mipi_csi_vdd",	"msm_csiphy.2"),
 	REGULATOR_SUPPLY("lvds_pll_vdda",	"lvds.0"),
 	REGULATOR_SUPPLY("dsi1_pll_vdda",	"mipi_dsi.1"),
-	REGULATOR_SUPPLY("dsi_pll_vdda",	"mdp.0"),
 };
 VREG_CONSUMERS(L3) = {
 	REGULATOR_SUPPLY("8921_l3",		NULL),
@@ -213,7 +212,6 @@ VREG_CONSUMERS(LVS7) = {
 	REGULATOR_SUPPLY("8921_lvs7",		NULL),
 	REGULATOR_SUPPLY("pll_vdd",		"pil_riva"),
 	REGULATOR_SUPPLY("lvds_vdda",		"lvds.0"),
-	REGULATOR_SUPPLY("dsi_pll_vddio",	"mdp.0"),
 };
 VREG_CONSUMERS(USB_OTG) = {
 	REGULATOR_SUPPLY("8921_usb_otg",	NULL),
@@ -475,24 +473,24 @@ VREG_CONSUMERS(EXT_TS_SW) = {
 
 struct gpio_regulator_platform_data
 m7_gpio_regulator_pdata[] __devinitdata = {
-	
+
 	GPIO_VREG(EXT_5V, "ext_5v", "ext_5v_en", PM8921_MPP_PM_TO_SYS(7), NULL),
-	
-	
-	
-	
+
+
+
+
 	GPIO_VREG(EXT_MPP8, "ext_mpp8", "ext_mpp8_en",
 			PM8921_MPP_PM_TO_SYS(8), NULL),
 };
 
 struct regulator_init_data m7_saw_regulator_pdata_8921_s5 =
-	
+
 	SAW_VREG_INIT(S5, "8921_s5",	       750000, 1350000);
 struct regulator_init_data m7_saw_regulator_pdata_8921_s6 =
 	SAW_VREG_INIT(S6, "8921_s6",	       750000, 1350000);
 
 struct regulator_init_data m7_saw_regulator_pdata_8821_s0 =
-	
+
 	SAW_VREG_INIT(8821_S0, "8821_s0",       750000, 1350000);
 struct regulator_init_data m7_saw_regulator_pdata_8821_s1 =
 	SAW_VREG_INIT(8821_S1, "8821_s1",       750000, 1350000);
@@ -502,14 +500,14 @@ m7_pm8921_regulator_pdata[] __devinitdata = {
 	PM8XXX_NLDO1200(L26, "8921_l26", 0, 1, 375000, 1050000, 200, "8921_s7",
 		0, 1),
 
-	
+
 	PM8XXX_VS300(USB_OTG,  "8921_usb_otg",  0, 0,         0, "ext_5v", 2),
 	PM8XXX_VS300(HDMI_MVS, "8921_hdmi_mvs", 0, 1,         0, "ext_5v", 3),
 };
 
 static struct rpm_regulator_init_data
 m7_rpm_regulator_init_data[] __devinitdata = {
-	
+
 	RPM_SMPS(S1, 1, 1, 0, 1225000, 1225000, NULL, 100000, 3p20, NONE, NONE),
 	RPM_SMPS(S2, 0, 1, 0, 1050000, 1200000, NULL, 100000, 1p60, NONE, NONE),
 	RPM_SMPS(S3, 0, 1, 1,  500000, 1250000, NULL, 100000, 4p80, NONE, NONE),
@@ -517,7 +515,7 @@ m7_rpm_regulator_init_data[] __devinitdata = {
 	RPM_SMPS(S7, 0, 0, 0, 1300000, 1300000, NULL, 100000, 3p20, NONE, NONE),
 	RPM_SMPS(S8, 0, 1, 0, 2200000, 2200000, NULL,      0, 1p60, NONE, NONE),
 
-	
+
 	RPM_LDO(L1,  1, 1, 0, 1050000, 1050000, "8921_s4",     0,  1000),
 	RPM_LDO(L2,  0, 1, 0, 1200000, 1200000, "8921_s4",     0,     0),
 	RPM_LDO(L3,  0, 1, 0, 3075000, 3075000, NULL,          0,     0),
@@ -537,14 +535,14 @@ m7_rpm_regulator_init_data[] __devinitdata = {
 	RPM_LDO(L18, 0, 1, 0, 1300000, 1300000, "8921_s4",     0,     0),
 	RPM_LDO(L21, 0, 1, 0, 1050000, 1800000, NULL,          0,     0),
 	RPM_LDO(L22, 1, 1, 0, 2850000, 2850000, NULL,          0,     0),
-	
+
 	RPM_LDO(L24, 0, 1, 1,  750000, 1250000, "8921_s1", 10000, 10000),
 	RPM_LDO(L25, 1, 1, 0, 1225000, 1225000, "8921_s1", 10000, 10000),
 	RPM_LDO(L27, 0, 0, 0, 1050000, 1050000, "8921_s7",     0,     0),
-	
+
 	RPM_LDO(L29, 0, 1, 0, 2000000, 3300000, NULL,          0,     0),
 
-	
+
 	RPM_VS(LVS1, 0, 1, 0,                   "8921_s4"),
 	RPM_VS(LVS2, 0, 1, 0,                   "8921_s1"),
 	RPM_VS(LVS3, 0, 1, 0,                   "8921_s4"),
@@ -553,7 +551,7 @@ m7_rpm_regulator_init_data[] __devinitdata = {
 	RPM_VS(LVS6, 0, 1, 0,                   "8921_s4"),
 	RPM_VS(LVS7, 0, 1, 1,                   "8921_s4"),
 
-	
+
 	RPM_NCP(NCP, 0,    0, 1800000, 1800000, "8921_l6", 1p60),
 };
 

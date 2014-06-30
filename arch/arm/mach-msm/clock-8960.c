@@ -2883,7 +2883,7 @@ static int pix_rdi_clk_set_rate(struct clk *c, unsigned long rate)
 		ret = -EINVAL;
 		goto err;
 	}
-	
+
 	if (rdi->enabled) {
 		clk_disable(mux_map[rdi->cur_rate]);
 		clk_enable(mux_map[rate]);
@@ -3427,8 +3427,7 @@ static struct clk_freq_tbl clk_tbl_gfx3d[] = {
 	F_GFX3D(266667000, pll2,  1,  3),
 	F_GFX3D(320000000, pll2,  2,  5),
 	F_GFX3D(400000000, pll2,  1,  2),
-	F_GFX3D(450000000, pll15, 1,  2),
-	F_GFX3D(487500000, pll15, 1,  2),
+	F_GFX3D(533000000, pll15, 1,  2),
 	F_END
 };
 
@@ -3448,27 +3447,28 @@ static struct clk_freq_tbl clk_tbl_gfx3d_8960[] = {
 	F_GFX3D(228571000, pll2, 2,  7),
 	F_GFX3D(266667000, pll2, 1,  3),
 	F_GFX3D(300000000, pll3, 1,  4),
-        F_GFX3D(320000000, pll2, 2,  5),
-        F_GFX3D(400000000, pll2, 1,  2),
+	F_GFX3D(320000000, pll2, 2,  5),
+	F_GFX3D(400000000, pll2, 1,  2),
+	F_GFX3D(533000000, pll2, 1,  2),
 	F_END
 };
 
 static unsigned long fmax_gfx3d_8064ab[MAX_VDD_LEVELS] __initdata = {
 	[VDD_DIG_LOW]     = 128000000,
 	[VDD_DIG_NOMINAL] = 325000000,
-	[VDD_DIG_HIGH]    = 450000000
+	[VDD_DIG_HIGH]    = 533000000
 };
 
 static unsigned long fmax_gfx3d_8064[MAX_VDD_LEVELS] __initdata = {
 	[VDD_DIG_LOW]     = 128000000,
 	[VDD_DIG_NOMINAL] = 325000000,
-	[VDD_DIG_HIGH]    = 487500000
+	[VDD_DIG_HIGH]    = 533000000
 };
 
 static unsigned long fmax_gfx3d_8930[MAX_VDD_LEVELS] __initdata = {
 	[VDD_DIG_LOW]     = 192000000,
 	[VDD_DIG_NOMINAL] = 320000000,
-	[VDD_DIG_HIGH]    = 450000000
+	[VDD_DIG_HIGH]    = 533000000
 };
 
 static struct bank_masks bmnd_info_gfx3d = {
@@ -3510,7 +3510,7 @@ static struct rcg_clk gfx3d_clk = {
 		.dbg_name = "gfx3d_clk",
 		.ops = &clk_ops_rcg,
 		VDD_DIG_FMAX_MAP3(LOW,  128000000, NOMINAL, 300000000,
-				  HIGH, 400000000),
+				  HIGH, 533000000),
 		CLK_INIT(gfx3d_clk.c),
 		.depends = &gmem_axi_clk.c,
 	},
@@ -4921,7 +4921,7 @@ static int measure_clk_set_parent(struct clk *c, struct clk *parent)
 	default:
 		ret = -EPERM;
 	}
-	
+
 	mb();
 
 	spin_unlock_irqrestore(&local_clock_reg_lock, flags);
@@ -4931,22 +4931,22 @@ static int measure_clk_set_parent(struct clk *c, struct clk *parent)
 
 static u32 run_measurement(unsigned ticks)
 {
-	
+
 	writel_relaxed(ticks, RINGOSC_TCXO_CTL_REG);
 
-	
+
 	while ((readl_relaxed(RINGOSC_STATUS_REG) & BIT(25)) != 0)
 		cpu_relax();
 
-	
+
 	writel_relaxed(BIT(20)|ticks, RINGOSC_TCXO_CTL_REG);
 	while ((readl_relaxed(RINGOSC_STATUS_REG) & BIT(25)) == 0)
 		cpu_relax();
 
-	
+
 	writel_relaxed(0x0, RINGOSC_TCXO_CTL_REG);
 
-	
+
 	return readl_relaxed(RINGOSC_STATUS_REG) & BM(24, 0);
 }
 
@@ -4967,32 +4967,32 @@ static unsigned long measure_clk_get_rate(struct clk *c)
 
 	spin_lock_irqsave(&local_clock_reg_lock, flags);
 
-	
+
 	pdm_reg_backup = readl_relaxed(PDM_CLK_NS_REG);
 	ringosc_reg_backup = readl_relaxed(RINGOSC_NS_REG);
 	writel_relaxed(0x2898, PDM_CLK_NS_REG);
 	writel_relaxed(0xA00, RINGOSC_NS_REG);
 
 
-	
+
 	raw_count_short = run_measurement(0x1000);
-	
+
 	raw_count_full = run_measurement(measure->sample_ticks);
 
 	writel_relaxed(ringosc_reg_backup, RINGOSC_NS_REG);
 	writel_relaxed(pdm_reg_backup, PDM_CLK_NS_REG);
 
-	
+
 	if (raw_count_full == raw_count_short)
 		ret = 0;
 	else {
-		
+
 		raw_count_full = ((raw_count_full * 10) + 15) * 4800000;
 		do_div(raw_count_full, ((measure->sample_ticks * 10) + 35));
 		ret = (raw_count_full * measure->multiplier);
 	}
 
-	
+
 	writel_relaxed(0x38F8, PLLTEST_PAD_CFG_REG);
 	spin_unlock_irqrestore(&local_clock_reg_lock, flags);
 
@@ -5865,9 +5865,6 @@ static struct clk_lookup msm_clocks_8064_r2[] = {
 	CLK_LOOKUP("core_clk",		gsbi3_qup_clk.c,	"qup_i2c.3"),
 	CLK_LOOKUP("core_clk",		gsbi4_qup_clk.c,	"qup_i2c.4"),
 	CLK_LOOKUP("core_clk",		gsbi5_qup_clk.c,	"spi_qsd.0"),
-#ifdef CONFIG_FPR_SPI
-	CLK_LOOKUP("core_clk",		gsbi1_qup_clk.c,	"spi_qsd.1"),
-#endif
 	CLK_LOOKUP("core_clk",		gsbi5_qup_clk.c,	"qup_i2c.5"),
 	CLK_LOOKUP("core_clk",		gsbi6_qup_clk.c,	""),
 	CLK_LOOKUP("core_clk",		gsbi7_qup_clk.c,	"qup_i2c.7"),
@@ -5917,9 +5914,6 @@ static struct clk_lookup msm_clocks_8064_r2[] = {
 #endif
 	CLK_LOOKUP("iface_clk",		gsbi4_p_clk.c,		"qup_i2c.4"),
 	CLK_LOOKUP("iface_clk",		gsbi5_p_clk.c,		"spi_qsd.0"),
-#ifdef CONFIG_FPR_SPI
-	CLK_LOOKUP("iface_clk",		gsbi1_p_clk.c,		"spi_qsd.1"),
-#endif
 	CLK_LOOKUP("iface_clk",		gsbi5_p_clk.c,		"qup_i2c.5"),
 	CLK_LOOKUP("iface_clk",		gsbi6_p_clk.c,		"msm_serial_hs.0"),
 #ifdef CONFIG_BT
@@ -5997,7 +5991,6 @@ static struct clk_lookup msm_clocks_8064_r2[] = {
 	CLK_LOOKUP("cam_clk",		cam0_clk.c,	"4-0036"),
 	CLK_LOOKUP("cam_clk",		cam1_clk.c,	"msm_camera_ar0260.0"),
 	CLK_LOOKUP("cam_clk",		cam0_clk.c,	"4-0048"),
-	CLK_LOOKUP("cam_clk",		cam1_clk.c,	"2-0048"),
 
 	CLK_LOOKUP("core_clk",		gfx3d_clk.c,	"kgsl-3d0.0"),
 	CLK_LOOKUP("core_clk",		gfx3d_clk.c,	"footswitch-8x60.2"),
@@ -6267,10 +6260,10 @@ static struct clk_lookup msm_clocks_8930[] = {
 	CLK_LOOKUP("core_clk",		gsbi11_uart_clk.c,	""),
 	CLK_LOOKUP("core_clk",		gsbi12_uart_clk.c,	""),
 	CLK_LOOKUP("core_clk",		gsbi1_qup_clk.c,	"spi_qsd.0"),
-	CLK_LOOKUP("core_clk",		gsbi2_qup_clk.c,	"qup_i2c.2"),
+	CLK_LOOKUP("core_clk",		gsbi2_qup_clk.c,	""),
 	CLK_LOOKUP("core_clk",		gsbi3_qup_clk.c,	"qup_i2c.3"),
 	CLK_LOOKUP("core_clk",		gsbi4_qup_clk.c,	"qup_i2c.4"),
-	CLK_LOOKUP("core_clk",		gsbi5_qup_clk.c,	"qup_i2c.5"),
+	CLK_LOOKUP("core_clk",		gsbi5_qup_clk.c,	""),
 	CLK_LOOKUP("core_clk",		gsbi6_qup_clk.c,	""),
 	CLK_LOOKUP("core_clk",		gsbi7_qup_clk.c,	""),
 	CLK_LOOKUP("core_clk",		gsbi8_qup_clk.c,	""),
@@ -6307,11 +6300,11 @@ static struct clk_lookup msm_clocks_8930[] = {
 	CLK_LOOKUP("core_clk",		ce1_core_clk.c,		"qcrypto.0"),
 	CLK_LOOKUP("dma_bam_pclk",	dma_bam_p_clk.c,	NULL),
 	CLK_LOOKUP("iface_clk",		gsbi1_p_clk.c,		"spi_qsd.0"),
-	CLK_LOOKUP("iface_clk",		gsbi2_p_clk.c,		"qup_i2c.2"),
+	CLK_LOOKUP("iface_clk",		gsbi2_p_clk.c,		""),
 	CLK_LOOKUP("iface_clk",		gsbi3_p_clk.c,		"qup_i2c.3"),
 	CLK_LOOKUP("iface_clk",		gsbi3_p_clk.c,		"msm_serial_hsl.1"),
 	CLK_LOOKUP("iface_clk",		gsbi4_p_clk.c,		"qup_i2c.4"),
-	CLK_LOOKUP("iface_clk",		gsbi5_p_clk.c,	"qup_i2c.5"),
+	CLK_LOOKUP("iface_clk",		gsbi5_p_clk.c,	NULL),
 	CLK_LOOKUP("iface_clk",		gsbi6_p_clk.c,  "msm_serial_hs.0"),
 	CLK_LOOKUP("iface_clk",		gsbi6_p_clk.c,  "msm_serial_hs_brcm.0"),
 	CLK_LOOKUP("iface_clk",		gsbi7_p_clk.c,		""),
@@ -6602,7 +6595,7 @@ static void __init reg_init(void)
 {
 	void __iomem *imem_reg;
 
-	
+
 	writel_relaxed(0, SW_RESET_ALL_REG);
 
 	if (cpu_is_msm8627() || cpu_is_msm8960ab()) {
@@ -6616,7 +6609,7 @@ static void __init reg_init(void)
 	if (cpu_is_apq8064() || cpu_is_apq8064ab())
 		rmwreg(0x00000001, AHB_EN3_REG, 0x00000001);
 
-	
+
 	rmwreg(0, SW_RESET_AHB_REG, 0xFFF7DFFF);
 	rmwreg(0, SW_RESET_AHB2_REG, 0x0000000F);
 
@@ -6646,7 +6639,7 @@ static void __init reg_init(void)
 	else
 		rmwreg(0x00003C38, SAXI_EN_REG,  0x00003FFF);
 
-	
+
 	imem_reg = ioremap(0x04b00040, 4);
 	if (imem_reg) {
 		writel_relaxed(0x3, imem_reg);
@@ -6697,29 +6690,29 @@ static void __init reg_init(void)
 		rmwreg(0x0000004F, USB_HS4_HCLK_FS_REG, 0x0000007F);
 	}
 
-	
+
 	writel_relaxed(0, SW_RESET_AXI_REG);
 
-	
+
 	writel_relaxed(0, SW_RESET_CORE_REG);
 	writel_relaxed(0, SW_RESET_CORE2_REG);
 
-	
+
 	writel_relaxed(BIT(11), TSSC_CLK_CTL_REG);
 	writel_relaxed(BIT(15), PDM_CLK_NS_REG);
 
-	
+
 	if (cpu_is_msm8960ab() || cpu_is_msm8960())
 		writel_relaxed(0x3, SLIMBUS_XO_SRC_CLK_CTL_REG);
 
-	
+
 	rmwreg(0x1, DSI1_BYTE_NS_REG, 0x7);
 	if (cpu_is_msm8960ab() || cpu_is_msm8960() || cpu_is_apq8064()
 		|| cpu_is_apq8064ab())
 		rmwreg(0x2, DSI2_BYTE_NS_REG, 0x7);
 
 #ifdef CONFIG_MSM_ALT_DSI_ESCAPE_CLOCK
-	
+
 	rmwreg(0x1, DSI1_ESC_NS_REG, 0x7);
 #endif
 
@@ -6731,28 +6724,28 @@ static void __init reg_init(void)
 	if (cpu_is_apq8064() || cpu_is_apq8064ab()) {
 		u32 is_pll_enabled;
 
-		
+
 		rmwreg(0x1, PXO_SRC_CLK_CTL_REG, 0x7);
 
-		
+
 		is_pll_enabled = readl_relaxed(BB_PLL14_STATUS_REG) & BIT(16);
 		if (!is_pll_enabled)
-			
+
 			configure_sr_pll(&pll14_config, &pll14_regs, 1);
 
-		
+
 		configure_sr_pll(&pll15_config, &pll15_regs, 0);
 
-		
+
 		is_pll_enabled = readl_relaxed(LCC_PLL0_STATUS_REG) & BIT(16);
 		if (!is_pll_enabled)
-			
+
 			configure_sr_pll(&pll4_config, &pll4_regs, 1);
 
-		
+
 		writel_relaxed(0x1, LCC_PRI_PLL_CLK_CTL_REG);
 
-		
+
 		if (!readl_relaxed(PRNG_CLK_NS_REG))
 			writel_relaxed(0x2B, PRNG_CLK_NS_REG);
 	}
@@ -6761,10 +6754,10 @@ static void __init reg_init(void)
 	 pll15_config.l = 0x21 | BVAL(31, 7, 0x620);
          pll15_config.m = 0x1;
          pll15_config.n = 0x3; 
-		
+
 		configure_sr_pll(&pll15_config, &pll15_regs, 0);
 	} else if (cpu_is_apq8064ab()) {
-		
+
 		pll15_config.l = 0x21 | BVAL(31, 7, 0x620);
 		pll15_config.m = 0x1;
 		pll15_config.n = 0x3;
@@ -6776,7 +6769,7 @@ static void __init reg_init(void)
 		pll15_config.m = 0x1;
 		pll15_config.n = 0x3;
 		configure_sr_pll(&pll15_config, &pll15_regs, 0);
-		
+
 		writel_relaxed(0, MM_PLL3_TEST_CTL_REG);
 	}
 }
@@ -6784,7 +6777,7 @@ static void __init reg_init(void)
 struct clock_init_data msm8960_clock_init_data __initdata;
 static void __init msm8960_clock_pre_init(void)
 {
-	
+
 	reg_init();
 	if (cpu_is_apq8064() || cpu_is_apq8064ab()) {
 		vdd_sr2_hdmi_pll.set_vdd = set_vdd_sr2_hdmi_pll_8064;
@@ -6867,10 +6860,10 @@ static void __init msm8960_clock_pre_init(void)
 
 static void __init msm8960_clock_post_init(void)
 {
-	
+
 	clk_prepare_enable(&pxo_a_clk.c);
 
-	
+
 	clk_set_rate(&gfx3d_clk.c, 27000000);
 	clk_prepare_enable(&gfx3d_clk.c);
 	clk_reset(&gfx3d_clk.c, CLK_RESET_ASSERT);
@@ -6878,7 +6871,7 @@ static void __init msm8960_clock_post_init(void)
 	clk_reset(&gfx3d_clk.c, CLK_RESET_DEASSERT);
 	clk_disable_unprepare(&gfx3d_clk.c);
 
-	
+
 	clk_set_rate(&pdm_clk.c, 27000000);
 	clk_set_rate(&prng_clk.c, prng_clk.freq_tbl->freq_hz);
 	clk_set_rate(&mdp_vsync_clk.c, 27000000);
@@ -6918,7 +6911,7 @@ static int __init msm8960_clock_late_init(void)
 	struct clk *mmfpb_a_clk = clk_get_sys("clock-8960", "mmfpb_a_clk");
 	struct clk *cfpb_a_clk = clk_get_sys("clock-8960", "cfpb_a_clk");
 
-	
+
 	if (WARN(IS_ERR(mmfpb_a_clk), "mmfpb_a_clk not found (%ld)\n",
 			PTR_ERR(mmfpb_a_clk)))
 		return PTR_ERR(mmfpb_a_clk);
@@ -6929,7 +6922,7 @@ static int __init msm8960_clock_late_init(void)
 	if (WARN(rc, "mmfpb_a_clk not enabled (%d)\n", rc))
 		return rc;
 
-	
+
 	if (WARN(IS_ERR(cfpb_a_clk), "cfpb_a_clk not found (%ld)\n",
 			PTR_ERR(cfpb_a_clk)))
 		return PTR_ERR(cfpb_a_clk);
