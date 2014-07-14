@@ -321,21 +321,16 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 		cpumask_setall(policy->cpus);
 
 	if (cpufreq_frequency_table_cpuinfo(policy, table)) {
-#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
-		policy->min = 84000;
-   		policy->max = 1990000;
-#endif
-	}
-#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
-        policy->cpuinfo.min_freq = 84000;
-        policy->cpuinfo.max_freq = 1990000;
-#endif
 
-#ifdef CONFIG_ARCH_APQ8064
-	if( board_mfg_mode() == 5) {
-		policy->cpuinfo.max_freq = 918000;
-		policy->max = 918000;
+#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
+		policy->cpuinfo.min_freq = CONFIG_MSM_CPU_FREQ_MIN;
+ 		policy->cpuinfo.max_freq = CONFIG_MSM_CPU_FREQ_MAX;
+#endif
 	}
+#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
+	policy->min = CONFIG_MSM_CPU_FREQ_MIN;
+	policy->max = CONFIG_MSM_CPU_FREQ_MAX;
+
 #endif
 
 	cur_freq = acpuclk_get_rate(policy->cpu);
